@@ -13,7 +13,7 @@ import numpy as np
 class Main():
 
     #number of iterations for the network 
-    lim = 10
+    lim = 3
     
     #iterator 
     x = 0
@@ -24,14 +24,14 @@ class Main():
     #input and hidden layer sizes 
     n0, n1, n2 = 4, 4, 4
     
-    #weight matrices 
-    w1 = Matrix(np.random.random_sample((n0, n1)))
-    w2 = Matrix(np.random.random_sample((n1, n2)))
+    #weight arrays 
+    w1 = np.matrix(np.random.random_sample((n0, n1)))
+    w2 = np.matrix(np.random.random_sample((n1, n2)))
     
-    #update matrices 
+    #update arrays 
     um1, um2 = np.zeros((n0, n1)), np.zeros((n0, n1))
     
-    #input, update, output, and potential vectorrs 
+    #input, update, output, and potential vectors 
     i1 = np.zeros(n0)
     u1,  p1, o1 = np.zeros(n1), np.zeros(n1), np.zeros(n1)
     u2, p2, o2 = np.zeros(n2), np.zeros(n2), np.zeros(n2)
@@ -51,6 +51,18 @@ class Main():
         outputVector = Transpose(Matrix(b))
         return q * inputVector * outputVector 
     
+    #function and vectorized function for applying spikes to neurons 
+    applySpike = lambda a, b: a.spikeIn(b)
+    applySpikes = np.vectorize(applySpike)
+    
+    #function and vectorized function for updating neurons  
+    updateNeuron = lambda a: a.updateNeuron()
+    updateNeurons = np.vectorize(updateNeuron)
+    
+    #function and vectorized function for returning neuron potentials 
+    neuronPotential = lambda a: a.getPotential()
+    neuronPotentials = np.vectorize(neuronPotential)
+    
     #main loop
     while(x <= lim):
         #create random set of inputs
@@ -60,27 +72,35 @@ class Main():
         #create update vector    
         u1 = np.matmul(i1, w1)
          
-        #apply spikes to first layer of neurons and decay
-        for i in range(n1):
-            L1[i].spikeIn(u1[i])
-            o1[i] = L1[i].updateNeuron()
-            p1[i] = L1[i].getPotential()
+        #apply spikes to first layer of neurons and decay 
+        applySpikes(L1, u1)
+        o1 = updateNeurons(L1)
+        p1 = neuronPotentials(L1)
         
         #create update vector
         u2 = np.matmul(o1, w2)
         
         #apply spikes to second layer of neurons and decay
-        for i in range(n2):
-            L2[i].spikeIn(u2[i])
-            o2[i] = L2[i].updateNeuron()
-            p2[i] = L2[i].getPotential()
+        applySpikes(L2, u2)
+        o2 = updateNeurons(L2)
+        p2 = neuronPotentials(L2)
         
         #update weight matrices using method 
-        w1 = w1 + updateMatrix(Q, i1, o1)
-        w2 = w2 + updateMatrix(Q, o1, o2)
+        w1 += np.array(updateMatrix(Q, i1, o1)).astype(np.float64)
+        w2 += np.array(updateMatrix(Q, o1, o2)).astype(np.float64)
+        
+        #renormalize weight matrices
+        weightSumOne = w1.sum(axis=1)
+        w1 = w1/weightSumOne
+        
+        weightSumTwo = w2.sum(axis=1)
+        w2 = w2/weightSumOne
         
         #print useful information at this step 
-        print(x, ': ', i1, p1, o1, p1, o2)
+        print(x, ': ', i1, p1, o1, p2, o2)
+        print(w1)
+        print(w2)
+        print()
         
         #incriment 
         x += 1 
