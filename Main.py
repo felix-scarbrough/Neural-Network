@@ -13,7 +13,7 @@ import numpy as np
 class Main():
 
     #number of iterations for the network 
-    lim = 3
+    lim = 30
     
     #iterator 
     x = 0
@@ -94,7 +94,7 @@ class Main():
         w1 = w1/weightSumOne
         
         weightSumTwo = w2.sum(axis=1)
-        w2 = w2/weightSumOne
+        w2 = w2/weightSumTwo
         
         #print useful information at this step 
         print(x, ': ', i1, p1, o1, p2, o2)
