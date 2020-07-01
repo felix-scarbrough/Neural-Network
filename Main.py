@@ -46,10 +46,15 @@ class Main():
         L2.append(Neuron())
         
     #returns the matrix product of the input and output vectors scaled to the learning constant (Q)
-    def updateMatrix(q, a, b):
+    def updateWeights(q, a, b):
+        N = a.size
         inputVector = Matrix(a)
         outputVector = Transpose(Matrix(b))
-        return q * inputVector * outputVector 
+        updateMatrix = np.array(q * inputVector * outputVector).astype(np.float64)
+        weightSum = updateMatrix.sum()
+        return updateMatrix - np.full(updateMatrix.shape, weightSum/N)
+        
+         
     
     #function and vectorized function for applying spikes to neurons 
     applySpike = lambda a, b: a.spikeIn(b)
@@ -86,20 +91,11 @@ class Main():
         p2 = neuronPotentials(L2)
         
         #update weight matrices using method 
-        w1 += np.array(updateMatrix(Q, i1, o1)).astype(np.float64)
-        w2 += np.array(updateMatrix(Q, o1, o2)).astype(np.float64)
-        
-        #renormalize weight matrices
-        weightSumOne = w1.sum(axis=1)
-        w1 = w1/weightSumOne
-        
-        weightSumTwo = w2.sum(axis=1)
-        w2 = w2/weightSumTwo
+        w1 += updateWeights(Q, i1, o1)
+        w2 += updateWeights(Q, o1, o2)
         
         #print useful information at this step 
-        print(x, ': ', i1, p1, o1, p2, o2)
-        print(w1)
-        print(w2)
+        print(x, ': ', w1, w2)
         print()
         
         #incriment 
