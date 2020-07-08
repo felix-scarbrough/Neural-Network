@@ -19,22 +19,22 @@ class Main():
     x = 0
     
     #learning constant 
-    Q = 0.35
+    Q = 0.05
     
     #input and hidden layer sizes 
-    n0, n1, n2 = 4, 4, 4
+    n0, n1, n2 = 5, 3, 6
     
     #weight arrays 
-    w1 = np.matrix(np.random.random_sample((n0, n1)))
-    w2 = np.matrix(np.random.random_sample((n1, n2)))
+    w1 = np.random.random_sample((n0, n1))
+    w2 = np.random.random_sample((n1, n2))
     
     #update arrays 
     um1, um2 = np.zeros((n0, n1)), np.zeros((n0, n1))
     
     #input, update, output, and potential vectors 
-    i1 = np.zeros(n0)
-    u1,  p1, o1 = np.zeros(n1), np.zeros(n1), np.zeros(n1)
-    u2, p2, o2 = np.zeros(n2), np.zeros(n2), np.zeros(n2)
+    i1 = np.zeros((1, n0))
+    u1,  p1, o1 = np.zeros((1, n1)), np.zeros((1, n1)), np.zeros((1, n1))
+    u2, p2, o2 = np.zeros((1, n2)), np.zeros((1, n2)), np.zeros((1, n2))
     
     
     #neuron hidden layers 
@@ -46,10 +46,9 @@ class Main():
         L2.append(Neuron())
         
     #returns the matrix product of the input and output vectors scaled to the learning constant (Q)
-    def updateMatrix(q, a, b):
-        inputVector = Matrix(a)
-        outputVector = Transpose(Matrix(b))
-        return q * inputVector * outputVector 
+    def updateMatrix(learningConstant, inputVector, outputVector):
+        return learningConstant * (inputVector * np.transpose(outputVector))
+         
     
     #function and vectorized function for applying spikes to neurons 
     applySpike = lambda a, b: a.spikeIn(b)
@@ -67,10 +66,10 @@ class Main():
     while(x <= lim):
         #create random set of inputs
         for i in range(n0):
-            i1[i] = np.random.randint(0, 2)
+            i1[0][i] = np.random.randint(0, 2)
             
         #create update vector    
-        u1 = np.matmul(i1, w1)
+        u1 = i1 @ w1  
          
         #apply spikes to first layer of neurons and decay 
         applySpikes(L1, u1)
@@ -78,7 +77,7 @@ class Main():
         p1 = neuronPotentials(L1)
         
         #create update vector
-        u2 = np.matmul(o1, w2)
+        u2 = o1 @ w2
         
         #apply spikes to second layer of neurons and decay
         applySpikes(L2, u2)
@@ -86,8 +85,8 @@ class Main():
         p2 = neuronPotentials(L2)
         
         #update weight matrices using method 
-        w1 += np.array(updateMatrix(Q, i1, o1)).astype(np.float64)
-        w2 += np.array(updateMatrix(Q, o1, o2)).astype(np.float64)
+        w1 = w1 + updateMatrix(Q, i1, o1)
+        w2 = w2 + updateMatrix(Q, o1, o2)
         
         #renormalize weight matrices
         weightSumOne = w1.sum(axis=1)

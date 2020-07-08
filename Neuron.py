@@ -10,11 +10,11 @@ class Neuron:
         
     #returns the potential of the neuron - used for debugging 
     def getPotential(self):
-        return str(self.potential)
+        return self.potential
     
     #applies a spike to the neuron     
     def spikeIn(self, weight):
-        self.potential =+ weight
+        self.potential += weight
     
     #returns 1 if the potential exceeds the threshold and sets potential to zero, otherwise decays the potential 
     def updateNeuron(self):
@@ -22,5 +22,5 @@ class Neuron:
             self.potential = 0
             return 1     
         else:
-            self.potential = 0.9 * self.potential
+            self.potential = 0.95 * self.potential
             return 0
