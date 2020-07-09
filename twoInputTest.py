@@ -26,8 +26,7 @@ print(weights)
 
 while(lim >= x):
     
-    for i in range(1):
-        inputVector[i] = 0
+    inputVector.fill(0)
         
     if((x % t1) == 0):
         inputVector[0][0] = 1
