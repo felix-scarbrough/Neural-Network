@@ -10,54 +10,59 @@ has 3 inputs and 2 neurons in the same layer
 from Neuron import Neuron
 import numpy as np 
 
-t1 = 5
-t2 = 9
-t3 = 7
 
-layerSize = 4
+
+t1 = 3
+t2 = 5
+t3 = 4
+
+L1 = 2
 
 #learning constant 
 q = 0.05
 
+def updateMatrix(inputVector, outputVector, weights, inputLayerSize, outputLayerSize, learningConstant):
+    return learningConstant * (np.transpose(inputVector) @ outputVector - ((weights @ np.transpose(outputVector) * np.identity(inputLayerSize)) @ np.tile(outputVector, (inputLayerSize, 1))))
+
+
 layer = [] 
-for i in range(layerSize):
+for i in range(L1):
     layer.append(Neuron())
     
-weights = np.random.random_sample((3, layerSize))
-updateMatrix = np.zeros((3, layerSize))
+w1 = np.random.random_sample((3, L1))
     
-inputVector = np.zeros((1, 3))
-updateVector = np.zeros((1, layerSize))
-outputVector = np.zeros((1, layerSize))
+i1 = np.zeros((1, 3))
+u1 = np.zeros((1, L1))
+o1 = np.zeros((1, L1))
 
-lim = 5000
+lim = 10000
 x = 1 
 
-print(weights)
+print(w1)
     
 while (lim >= x):
     
     #reset input to zero 
-    inputVector.fill(0)
+    i1.fill(0)
     
     #check to see if inputs should fire
     if ((x % t1) == 0):
-        inputVector[0][0] = 1
+        i1[0][0] = 1
     if ((x % t2) == 0):
-        inputVector[0][1] = 1
+        i1[0][1] = 1
     if ((x % t3) == 0):
-        inputVector[0][2] = 1
+        i1[0][2] = 1
     
-    updateVector = inputVector @ weights    
+    u1 = i1 @ w1    
     
-    for i in range(layerSize): 
-        layer[i].spikeIn(updateVector[0][i])
-        outputVector[0][i] = layer[i].updateNeuron()
+    for i in range(L1): 
+        layer[i].spikeIn(u1[0][i])
+        o1[0][i] = layer[i].updateNeuron()
     
-    weights += q * np.transpose(updateVector * np.identity(layerSize) @ np.transpose(np.transpose(np.tile(inputVector, (layerSize, 1))) - np.transpose((updateVector * np.identity(layerSize) @ np.transpose(weights)))))
+    w1 += updateMatrix(i1, o1, w1, 3, L1, q)
     
     #incriment iterator 
     x += 1 
 
-print(weights)
+print(w1)
 
