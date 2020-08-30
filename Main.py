@@ -11,7 +11,7 @@ import numpy as np
 
 class Main:
     # number of iterations for the network
-    lim = 1000
+    lim = 30
 
     # iterator
     x = 0
@@ -22,8 +22,10 @@ class Main:
     # input and hidden layer sizes
     n0, n1, n2 = 4, 8, 4
 
-    # firing rates
-    t1, t2, t3, t4 = 3, 5, 7, 11
+    # firing rate array
+    # t1, t2, t3, t4 = 3, 5, 7, 11
+    firingRates = np.array([[3, 5, 7, 11]])
+    impulseCountDown = np.random.randint(10, size=firingRates.shape)
 
     # weight arrays
     w1 = np.random.random_sample((n0, n1))
@@ -61,17 +63,16 @@ class Main:
     neuronPotential = lambda a: a.getPotential()
     neuronPotentials = np.vectorize(neuronPotential)
 
+    print(w1, w2)
+
     # main loop
     while x <= lim:
-        # input rates
-        if x % t1 == 0:
-            i1[0][0] = 1
-        if x % t2 == 0:
-            i1[0][1] = 1
-        if x % t3 == 0:
-            i1[0][2] = 1
-        if x % t4 == 0:
-            i1[0][3] == 1
+        for i in range(n0):
+            if impulseCountDown[0][i] == 0:
+                i1[0][i] = 1
+                impulseCountDown[0][i] = firingRates[0][i]
+            else:
+                impulseCountDown[0][i] -= 1
 
         # create update vector
         u1 = i1 @ w1
@@ -94,10 +95,12 @@ class Main:
         w2 = w2 + updateMatrix(o1, o2, w2, n1, n2, Q)
 
         # print useful information at this step
-        # print(x, ': ', i1, p1, o1, p2, o2)
-        # print(w1)
-        # print(w2)
-        # print()
+        print(x, ': ', impulseCountDown, i1)
+
+        # reset value of inputs to zero
+        i1 = np.zeros((1, n0))
 
         # increment
         x += 1
+
+    print(w1, w2)

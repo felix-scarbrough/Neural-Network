@@ -37,6 +37,8 @@ o1 = np.zeros((1, L1))
 lim = 10000
 x = 1
 
+print(i1)
+print(o1)
 print(w1)
 
 while lim >= x:
