@@ -50,6 +50,18 @@ class Main:
     def updateMatrix(inputVector, outputVector, weights, inputLayerSize, outputLayerSize, learningConstant):
         return learningConstant * (np.transpose(inputVector) @ outputVector - ((weights @ np.transpose(outputVector) * np.identity(inputLayerSize)) @ np.tile(outputVector, (inputLayerSize, 1))))
 
+    def updateFiringRates(self, firingRates):
+        self.firingRates = firingRates
+
+    def saveWeights(self, filename):
+        np.savez(filename, w1=self.w1, w2=self.w2)
+
+    def loadWeights(self, filename):
+        data = np.load(filename)
+        self.w1 = data['w1']
+        self.w2 = data['w2']
+
+
     # function and vectorized function for applying spikes to neurons
     applySpike = lambda a, b: a.spikeIn(b)
     applySpikes = np.vectorize(applySpike)
