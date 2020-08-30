@@ -23,7 +23,6 @@ class Main:
     n0, n1, n2 = 4, 8, 4
 
     # firing rate array
-    # t1, t2, t3, t4 = 3, 5, 7, 11
     firingRates = np.array([[3, 5, 7, 11]])
     impulseCountDown = np.random.randint(10, size=firingRates.shape)
 
@@ -63,10 +62,10 @@ class Main:
     neuronPotential = lambda a: a.getPotential()
     neuronPotentials = np.vectorize(neuronPotential)
 
-    print(w1, w2)
-
     # main loop
     while x <= lim:
+
+        # test inputs to see if they should fire, then reset to maximum value, or decay current value.
         for i in range(n0):
             if impulseCountDown[0][i] == 0:
                 i1[0][i] = 1
@@ -94,13 +93,8 @@ class Main:
         w1 = w1 + updateMatrix(i1, o1, w1, n0, n1, Q)
         w2 = w2 + updateMatrix(o1, o2, w2, n1, n2, Q)
 
-        # print useful information at this step
-        print(x, ': ', impulseCountDown, i1)
-
         # reset value of inputs to zero
         i1 = np.zeros((1, n0))
 
         # increment
         x += 1
-
-    print(w1, w2)
