@@ -9,6 +9,7 @@ from Neuron import Neuron
 import numpy as np
 
 class NeuralNetwork:
+
     # returns the matrix product of the input and output vectors scaled to the learning constant (Q)
     def updateMatrix(self, inputVector, outputVector, weights, inputLayerSize, outputLayerSize, learningConstant):
         return learningConstant * (np.transpose(inputVector) @ outputVector - ((weights @ np.transpose(outputVector) * np.identity(inputLayerSize)) @ np.tile(outputVector, (inputLayerSize, 1))))
@@ -43,6 +44,19 @@ class NeuralNetwork:
             potentials.append(neuron.getPotential())
         return potentials
 
+    def updateLayer(self, layer, inputVector, weights):
+        # create update vector
+        updateVector = inputVector @ weights
+
+        # apply spikes to second layer of neurons and decay
+        self.applySpikes(self, layer, updateVector)
+        outputVector = self.updateNeurons(self, layer)
+        layerPotentials = self.neuronPotentials(self, layer)
+
+        return outputVector, layerPotentials
+
+        print(outputVector)
+
     # main loop
     def learningLoop(self, inputLayerSize, hiddenLayerSize, outputLayerSize, firingRates, learningConstant, limit, importWeights):
 
@@ -76,8 +90,8 @@ class NeuralNetwork:
         # iterator
         x = 0
 
-        # print initial weights
-        # print(w1, w2)
+        # print initial weight values
+        print(w1, w2)
 
         while x <= limit:
             # test inputs to see if they should fire, then reset to maximum value, or decay current value.
@@ -88,29 +102,23 @@ class NeuralNetwork:
                 else:
                     impulseCountDown[0][i] -= 1
 
-            # create update vector
-            updateVectorOne = inputVector @ w1
-
-            # apply spikes to first layer of neurons and decay
-            self.applySpikes(self, hiddenLayer, updateVectorOne)
-            outputVectorOne = np.atleast_2d(self.updateNeurons(self, hiddenLayer))
-            p1 = self.neuronPotentials(self, hiddenLayer)
-
-            # create update vector
-            updateVectorTwo = outputVectorOne @ w2
-
-            # apply spikes to second layer of neurons and decay
-            self.applySpikes(self, outputLayer, updateVectorTwo)
-            outputVectorTwo = np.atleast_2d(self.updateNeurons(self, outputLayer))
-            outputLayerPotentials = self.neuronPotentials(self, outputLayer)
+            # update the neuron layers
+            outputVectorOne, hiddenLayerPotentials = self.updateLayer(self, hiddenLayer, inputVector, w1)
+            outputVectorTwo, outputLayerPotentials = self.updateLayer(self, outputLayer, outputVectorOne, w2)
 
             # update weight matrices using Hebbian learning
             w1 = w1 + self.updateMatrix(self, inputVector, outputVectorOne, w1, inputLayerSize, hiddenLayerSize, learningConstant)
             w2 = w2 + self.updateMatrix(self, outputVectorOne, outputVectorTwo, w2, hiddenLayerSize, outputLayerSize, learningConstant)
+
+            # print infomation at this step
+            print(x, " : ", inputVector, outputVectorOne, outputVectorTwo)
 
             # reset value of inputs to zero
             inputVector = np.zeros((1, inputLayerSize))
 
             # increment
             x += 1
+
+        # print final weight values
+        print(w1, w2)
 
