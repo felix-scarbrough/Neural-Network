@@ -55,7 +55,14 @@ class NeuralNetwork:
 
         return outputVector, layerPotentials
 
-        print(outputVector)
+    def inputUpdate(self, inputLayerSize, impulseCountDown, inputVector, firingRates):
+        for i in range(inputLayerSize):
+            if impulseCountDown[0][i] == 0:
+                inputVector[0][i] = 1
+                impulseCountDown[0][i] = firingRates[0][i]
+            else:
+                impulseCountDown[0][i] -= 1
+        return inputVector, impulseCountDown
 
     # main loop
     def learningLoop(self, inputLayerSize, hiddenLayerSize, outputLayerSize, firingRates, learningConstant, limit, importWeights):
@@ -95,12 +102,7 @@ class NeuralNetwork:
 
         while x <= limit:
             # test inputs to see if they should fire, then reset to maximum value, or decay current value.
-            for i in range(inputLayerSize):
-                if impulseCountDown[0][i] == 0:
-                    inputVector[0][i] = 1
-                    impulseCountDown[0][i] = firingRates[0][i]
-                else:
-                    impulseCountDown[0][i] -= 1
+            inputVector, impulseCountDown = self.inputUpdate(self, inputLayerSize, impulseCountDown, inputVector, firingRates)
 
             # update the neuron layers
             outputVectorOne, hiddenLayerPotentials = self.updateLayer(self, hiddenLayer, inputVector, w1)
