@@ -1,3 +1,9 @@
+"""
+Created on Mon Aug 31 2020
+
+@author: Felix Scarbrough
+"""
+
 from NeuralNetwork import NeuralNetwork
 import numpy as np
 
