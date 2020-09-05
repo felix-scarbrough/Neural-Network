@@ -7,15 +7,19 @@ Created on Mon Aug 31 2020
 from NeuralNetwork import NeuralNetwork
 import numpy as np
 
-firingRateOne = np.array([[3, 5, 15, 15]])
-firingRateTwo = np.array([[5, 3, 9, 15]])
-firingRateThree = np.array([[9, 5, 3, 9]])
-firingRateFour = np.array([[15, 9, 5, 3]])
-network = NeuralNetwork(4, 4, 4, True)
+firingRateOne = np.array([[0.7, 0.1, 0.3, 0.2]])
+firingRateTwo = np.array([[0.2, 0.3, 0.15, 0.8]])
+firingRateThree = np.array([[0.2, 0.6, 0.3, 0.1]])
+firingRateFour = np.array([[0.3, 0.5, 0.9, 0.3]])
 
-for i in range(5):
-    network.learningLoop(network.hiddenLayer, network.outputLayer, network.inputLayerSize, network.hiddenLayerSize, network.outputLayerSize, network.w1, network.w2, firingRateOne, 0.05, 50)
-    network.learningLoop(network.hiddenLayer, network.outputLayer, network.inputLayerSize, network.hiddenLayerSize, network.outputLayerSize, network.w1, network.w2, firingRateTwo, 0.05, 50)
-    network.learningLoop(network.hiddenLayer, network.outputLayer, network.inputLayerSize, network.hiddenLayerSize, network.outputLayerSize, network.w1, network.w2, firingRateThree, 0.05, 50)
-    network.learningLoop(network.hiddenLayer, network.outputLayer, network.inputLayerSize, network.hiddenLayerSize, network.outputLayerSize, network.w1, network.w2, firingRateFour, 0.05, 50)
-network.saveWeights("networkweightsTest.npz")
+learningConstant = 0.01
+lim = 60
+
+network = NeuralNetwork(4, 6, 6, 4, False)
+
+for i in range(200):
+    print(i, " : ")
+    network.learningLoop(network.inputLayer, network.hiddenLayerOne, network.hiddenLayerTwo, network.outputLayer, network.inputLayerSize, network.hiddenLayerOneSize, network.hiddenLayerTwoSize, network.outputLayerSize, network.w1, network.w2, network.w3, firingRateOne, learningConstant, lim)
+    network.learningLoop(network.inputLayer, network.hiddenLayerOne, network.hiddenLayerTwo, network.outputLayer, network.inputLayerSize, network.hiddenLayerOneSize, network.hiddenLayerTwoSize, network.outputLayerSize, network.w1, network.w2, network.w3, firingRateTwo, learningConstant, lim)
+    network.learningLoop(network.inputLayer, network.hiddenLayerOne, network.hiddenLayerTwo, network.outputLayer, network.inputLayerSize, network.hiddenLayerOneSize, network.hiddenLayerTwoSize, network.outputLayerSize, network.w1, network.w2, network.w3, firingRateThree, learningConstant, lim)
+    network.learningLoop(network.inputLayer, network.hiddenLayerOne, network.hiddenLayerTwo, network.outputLayer, network.inputLayerSize, network.hiddenLayerOneSize, network.hiddenLayerTwoSize, network.outputLayerSize, network.w1, network.w2, network.w3, firingRateFour, learningConstant, lim)

@@ -12,19 +12,16 @@ class NeuralNetwork:
 
     # Set input layer size, hidden layer size, and output layer size on creation, set if to import weights, and
     # create neuron layers
-    def __init__(self, inputLayerSize, hiddenLayerSize, outputLayerSize, importWeights):
+    def __init__(self, inputLayerSize, hiddenLayerOneSize, hiddenLayerTwoSize, outputLayerSize, importWeights):
 
-        self.inputLayerSize, self.hiddenLayerSize, self.outputLayerSize = inputLayerSize, hiddenLayerSize, outputLayerSize
+        self.inputLayerSize, self.hiddenLayerOneSize, self.hiddenLayerTwoSize, self.outputLayerSize = inputLayerSize, hiddenLayerOneSize, hiddenLayerTwoSize, outputLayerSize
 
-        # neuron hidden layers
-        hiddenLayer, outputLayer = [], []
-        for i in range(hiddenLayerSize):
-            hiddenLayer.append(Neuron())
+        # neuron layers
+        inputLayer, hiddenLayerOne, hiddenLayerTwo, outputLayer = self.createLayer(inputLayerSize), self.createLayer(hiddenLayerOneSize), self.createLayer(hiddenLayerTwoSize), self.createLayer(outputLayerSize)
 
-        for i in range(outputLayerSize):
-            outputLayer.append(Neuron())
-
-        self.hiddenLayer = hiddenLayer
+        self.inputLayer = inputLayer
+        self.hiddenLayerOne = hiddenLayerOne
+        self.hiddenLayerTwo = hiddenLayerTwo
         self.outputLayer = outputLayer
 
         if importWeights:
@@ -32,12 +29,20 @@ class NeuralNetwork:
             filename = input()
             self.loadWeights(filename)
         else:
-            self.w1 = np.random.random_sample((inputLayerSize, hiddenLayerSize))
-            self.w2 = np.random.random_sample((hiddenLayerSize, outputLayerSize))
+            self.w1 = np.random.random_sample((inputLayerSize, hiddenLayerOneSize))
+            self.w2 = np.random.random_sample((hiddenLayerOneSize, hiddenLayerTwoSize))
+            self.w3 = np.random.random_sample((hiddenLayerTwoSize, outputLayerSize))
+
+
+    def createLayer(self, layerSize):
+        layer = []
+        for i in range(layerSize):
+            neuron = Neuron()
+            layer.append(neuron)
+        return layer
 
     # iterates the input countdowns and creates an input layer with values set to 1 if that input "neuron" is firing
     def inputUpdate(self, inputLayerSize, impulseCountDown, firingRates):
-        print(inputLayerSize, impulseCountDown, firingRates)
         inputVector = np.zeros(firingRates.shape)
         for i in range(inputLayerSize):
             if impulseCountDown[0][i] == 0:
@@ -92,20 +97,23 @@ class NeuralNetwork:
 
     # save the object weights to a .npz file
     def saveWeights(self, filename):
-        np.savez(filename, w1=self.w1, w2=self.w2)
+        np.savez(filename, w1=self.w1, w2=self.w2, w3=self.w3)
 
     # loads the weights from a .npz file to the object
     def loadWeights(self, filename):
         data = np.load(filename)
         self.w1 = data['w1']
         self.w2 = data['w2']
+        self.w3 = data['w3']
 
     # main learning loop, runs with a single set of inputs for a fixed number of cycles, then saves the resulting
     # weights and layers
-    def learningLoop(self, hiddenLayer, outputLayer, inputLayerSize, hiddenLayerSize, outputLayerSize, w1, w2, firingRates, learningConstant, limit):
+    def learningLoop(self, inputLayer, hiddenLayerOne, hiddenLayerTwo, outputLayer, inputLayerSize, hiddenLayerOneSize, hiddenLayerTwoSize, outputLayerSize, w1, w2, w3, firingRates, learningConstant, limit):
+        # identity matrix for input Layer
+        w0 = np.identity(inputLayerSize)
 
-        # create impulse countdown vector
-        impulseCountDown = np.random.randint(10, size=firingRates.shape)
+        # test code
+        runningTotal = np.zeros((1, outputLayerSize))
 
         # iterator
         x = 0
@@ -113,22 +121,27 @@ class NeuralNetwork:
         # main loop
         while x <= limit:
             # test inputs to see if they should fire, then reset to maximum value, or decay current value.
-            inputVector, impulseCountDown = self.inputUpdate(inputLayerSize, impulseCountDown, firingRates)
 
             # update the neuron layers
-            outputVectorOne, hiddenLayerPotentials = self.updateLayer(hiddenLayer, inputVector, w1)
-            outputVectorTwo, outputLayerPotentials = self.updateLayer(outputLayer, outputVectorOne, w2)
+            inputVector, inputLayerPotentials = self.updateLayer(inputLayer, firingRates, w0)
+            outputVectorOne, hiddenLayerOnePotentials = self.updateLayer(hiddenLayerOne, inputVector, w1)
+            outputVectorTwo, hiddenLayerTwoPotentials = self.updateLayer(hiddenLayerTwo, outputVectorOne, w2)
+            outputVectorThree, outputLayerPotentials = self.updateLayer(outputLayer, outputVectorTwo, w3)
 
             # update weight matrices using Hebbian learning
-            w1 = w1 + self.updateMatrix(inputVector, outputVectorOne, w1, inputLayerSize, hiddenLayerSize, learningConstant)
-            w2 = w2 + self.updateMatrix(outputVectorOne, outputVectorTwo, w2, hiddenLayerSize, outputLayerSize, learningConstant)
+            w1 = w1 + self.updateMatrix(inputVector, outputVectorOne, w1, inputLayerSize, hiddenLayerOneSize, learningConstant)
+            w2 = w2 + self.updateMatrix(outputVectorOne, outputVectorTwo, w2, hiddenLayerOneSize, hiddenLayerTwoSize, learningConstant)
+            w3 = w3 + self.updateMatrix(outputVectorTwo, outputVectorThree, w3, hiddenLayerTwoSize, outputLayerSize, learningConstant)
 
-            # print infomation at this step
-            print(x, " : ", inputVector, outputVectorOne, outputVectorTwo)
+            # print information at this step
+            # print(x, " : ", inputVector, outputVectorOne, outputVectorTwo, outputVectorThree)
+            runningTotal += outputVectorThree
 
             # increment
             x += 1
 
         # sets the object weights and layers to those produced by the learning loop, maintaining potential and weight
-        # continuity between differant learning cycles
-        self.w1, self.w2, self.hiddenLayer, self.outputLayer = w1, w2, hiddenLayer, outputLayer
+        # continuity between different learning cycles
+        # runningTotal = runningTotal / limit
+        print(runningTotal)
+        self.w1, self.w2, self.w3, self.inputLayer, self.hiddenLayerOne, self.hiddenLayerTwo, self.outputLayer = w1, w2, w3, inputLayer, hiddenLayerOne, hiddenLayerTwo, outputLayer
