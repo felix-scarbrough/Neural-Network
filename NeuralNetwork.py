@@ -12,7 +12,7 @@ class NeuralNetwork:
 
     # Set input layer size, hidden layer size, and output layer size on creation, set if to import weights, and
     # create neuron layers
-    def __init__(self, inputLayerSize, hiddenLayerOneSize, hiddenLayerTwoSize, outputLayerSize, importWeights):
+    def __init__(self, inputLayerSize, hiddenLayerOneSize, hiddenLayerTwoSize, outputLayerSize, learningConstant, importWeights):
 
         self.inputLayerSize, self.hiddenLayerOneSize, self.hiddenLayerTwoSize, self.outputLayerSize = inputLayerSize, hiddenLayerOneSize, hiddenLayerTwoSize, outputLayerSize
 
@@ -23,6 +23,8 @@ class NeuralNetwork:
         self.hiddenLayerOne = hiddenLayerOne
         self.hiddenLayerTwo = hiddenLayerTwo
         self.outputLayer = outputLayer
+
+        self.learningConstant = learningConstant
 
         if importWeights:
             print("Input filename to load weights from: ")
@@ -106,11 +108,19 @@ class NeuralNetwork:
         self.w2 = data['w2']
         self.w3 = data['w3']
 
-    # main learning loop, runs with a single set of inputs for a fixed number of cycles, then saves the resulting
-    # weights and layers
-    def learningLoop(self, inputLayer, hiddenLayerOne, hiddenLayerTwo, outputLayer, inputLayerSize, hiddenLayerOneSize, hiddenLayerTwoSize, outputLayerSize, w1, w2, w3, firingRates, learningConstant, limit):
-        # identity matrix for input Layer
+    # main learning loop, runs with a single set of inputs for a fixed number of cycles, then saves the resulting weights and layers
+    def learningLoop(self, firingRates, limit):
+
+        # create local variables from layers and their sizes
+        inputLayerSize, hiddenLayerOneSize, hiddenLayerTwoSize, outputLayerSize = self.inputLayerSize, self.hiddenLayerOneSize, self.hiddenLayerTwoSize, self.outputLayerSize
+        inputLayer, hiddenLayerOne, hiddenLayerTwo, outputLayer = self.inputLayer, self.hiddenLayerOne, self.hiddenLayerTwo, self.outputLayer
+
+        # create local variable from the learning constant
+        learningConstant = self.learningConstant
+
+        # assign weights to local variables and create identity matrix for input layer
         w0 = np.identity(inputLayerSize)
+        w1, w2, w3 = self.w1, self.w2, self.w3
 
         # test code
         runningTotal = np.zeros((1, outputLayerSize))
@@ -120,8 +130,6 @@ class NeuralNetwork:
 
         # main loop
         while x <= limit:
-            # test inputs to see if they should fire, then reset to maximum value, or decay current value.
-
             # update the neuron layers
             inputVector, inputLayerPotentials = self.updateLayer(inputLayer, firingRates, w0)
             outputVectorOne, hiddenLayerOnePotentials = self.updateLayer(hiddenLayerOne, inputVector, w1)
@@ -140,7 +148,6 @@ class NeuralNetwork:
             # increment
             x += 1
 
-        # sets the object weights and layers to those produced by the learning loop, maintaining potential and weight
         # continuity between different learning cycles
         # runningTotal = runningTotal / limit
         print(runningTotal)
