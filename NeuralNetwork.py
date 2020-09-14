@@ -19,10 +19,7 @@ class NeuralNetwork:
         # neuron layers
         inputLayer, hiddenLayerOne, hiddenLayerTwo, outputLayer = self.createLayer(inputLayerSize), self.createLayer(hiddenLayerOneSize), self.createLayer(hiddenLayerTwoSize), self.createLayer(outputLayerSize)
 
-        self.inputLayer = inputLayer
-        self.hiddenLayerOne = hiddenLayerOne
-        self.hiddenLayerTwo = hiddenLayerTwo
-        self.outputLayer = outputLayer
+        self.inputLayer, self.hiddenLayerOne, self.hiddenLayerTwo, self.outputLayer = inputLayer, hiddenLayerOne, hiddenLayerTwo, outputLayer
 
         self.learningConstant = learningConstant
 
@@ -34,6 +31,9 @@ class NeuralNetwork:
             self.w1 = np.random.random_sample((inputLayerSize, hiddenLayerOneSize))
             self.w2 = np.random.random_sample((hiddenLayerOneSize, hiddenLayerTwoSize))
             self.w3 = np.random.random_sample((hiddenLayerTwoSize, outputLayerSize))
+
+        self.metaCount = 0
+        self.x_pos, self.y_pos, self.colour = [], [], []
 
 
     def createLayer(self, layerSize):
@@ -108,8 +108,17 @@ class NeuralNetwork:
         self.w2 = data['w2']
         self.w3 = data['w3']
 
+    def getData(self):
+        return self.x_pos, self.y_pos, self.colour
+
     # main learning loop, runs with a single set of inputs for a fixed number of cycles, then saves the resulting weights and layers
-    def learningLoop(self, firingRates, limit):
+    def learningLoop(self, firingRates, limit, colour):
+
+        # import the metacount from the object
+        metaCount = self.metaCount
+
+        #create local iterator
+        x = 0
 
         # create local variables from layers and their sizes
         inputLayerSize, hiddenLayerOneSize, hiddenLayerTwoSize, outputLayerSize = self.inputLayerSize, self.hiddenLayerOneSize, self.hiddenLayerTwoSize, self.outputLayerSize
@@ -125,9 +134,6 @@ class NeuralNetwork:
         # test code
         runningTotal = np.zeros((1, outputLayerSize))
 
-        # iterator
-        x = 0
-
         # main loop
         while x <= limit:
             # update the neuron layers
@@ -141,14 +147,18 @@ class NeuralNetwork:
             w2 = w2 + self.updateMatrix(outputVectorOne, outputVectorTwo, w2, hiddenLayerOneSize, hiddenLayerTwoSize, learningConstant)
             w3 = w3 + self.updateMatrix(outputVectorTwo, outputVectorThree, w3, hiddenLayerTwoSize, outputLayerSize, learningConstant)
 
-            # print information at this step
-            # print(x, " : ", inputVector, outputVectorOne, outputVectorTwo, outputVectorThree)
-            runningTotal += outputVectorThree
+            for i in range(outputLayerSize):
+                if outputVectorThree[0][i] == 1:
+                    self.y_pos.append(i)
+                    self.x_pos.append(metaCount)
+                    self.colour.append(colour)
+
 
             # increment
             x += 1
+            metaCount += 1
 
         # continuity between different learning cycles
         # runningTotal = runningTotal / limit
-        print(runningTotal)
-        self.w1, self.w2, self.w3, self.inputLayer, self.hiddenLayerOne, self.hiddenLayerTwo, self.outputLayer = w1, w2, w3, inputLayer, hiddenLayerOne, hiddenLayerTwo, outputLayer
+        # print(runningTotal)
+        self.w1, self.w2, self.w3, self.inputLayer, self.hiddenLayerOne, self.hiddenLayerTwo, self.outputLayer, self.metaCount = w1, w2, w3, inputLayer, hiddenLayerOne, hiddenLayerTwo, outputLayer, metaCount
