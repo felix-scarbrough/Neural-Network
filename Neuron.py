@@ -5,7 +5,7 @@ Created on Fri Jun 12 2020
 """
 
 
-class Neuron:
+class BasicNeuron:
     threshold = 1
     potential = 0
 
@@ -23,5 +23,5 @@ class Neuron:
             self.potential = 0
             return 1
         else:
-            self.potential = 0.95 * self.potential
+            self.potential = 0.97 * self.potential
             return 0

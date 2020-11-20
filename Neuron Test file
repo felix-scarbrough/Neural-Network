@@ -1,0 +1,38 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+from Neuron import BasicNeuron
+from NeuronSpikeInhibited import InhibitedNeuron
+from NeuronAdvancedDecay import AdvancedNeuron
+
+basicNeuron = BasicNeuron()
+inhibitedNeuron = InhibitedNeuron()
+advancedNeuron = AdvancedNeuron()
+
+count = []
+basicNeuronPotential, inhibitedNeuronPotential, advancedNeuronPotential = [], [], []
+
+for i in range(300):
+    if (i % 11 == 0):
+        basicNeuron.spikeIn(0.3)
+        inhibitedNeuron.spikeIn(0.3)
+        advancedNeuron.spikeIn(0.3)
+    basicNeuronPotential.append(basicNeuron.getPotential())
+    inhibitedNeuronPotential.append(inhibitedNeuron.getPotential())
+    advancedNeuronPotential.append(advancedNeuron.getPotential())
+    basicNeuron.updateNeuron()
+    inhibitedNeuron.updateNeuron()
+    advancedNeuron.updateNeuron()
+    count.append(i)
+
+print(count)
+print(advancedNeuronPotential)
+
+fig, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)
+ax1.plot(count, basicNeuronPotential)
+ax2.plot(count, inhibitedNeuronPotential)
+ax3.plot(count, advancedNeuronPotential)
+plt.show()
+
+
+

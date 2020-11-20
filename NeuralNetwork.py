@@ -5,7 +5,7 @@ Created on Fri Jun 12 2020
 @author: Felix Scarbrough
 """
 
-from NeuronAdvancedDecay import Neuron
+from NeuronAdvancedDecay import AdvancedNeuron as Neuron
 import numpy as np
 
 class NeuralNetwork:
