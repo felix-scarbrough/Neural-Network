@@ -6,6 +6,7 @@ Created on Fri Jun 12 2020
 
 import math
 
+# Neuron that when spiked has it's potential polarised before decaying to the ground state and has a short inhibitory period
 class AdvancedNeuron:
     threshold = 1
     potential = 0

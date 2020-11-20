@@ -5,37 +5,42 @@ Created on Fri Jun 12 2020
 @author: Felix Scarbrough
 """
 
-from NeuronAdvancedDecay import AdvancedNeuron as Neuron
+from Neuron import BasicNeuron as Neuron
 import numpy as np
 
 class NeuralNetwork:
 
     # Set input layer size, hidden layer size, and output layer size on creation, set if to import weights, and
     # create neuron layers
-    def __init__(self, inputLayerSize, hiddenLayerOneSize, hiddenLayerTwoSize, outputLayerSize, learningConstant, importWeights):
+    def __init__(self, inputLayerSize, hiddenLayerOneSize, hiddenLayerTwoSize, outputLayerSize, learningConstant, importWeights, saveFile):
 
+        # layer dimensions
         self.inputLayerSize, self.hiddenLayerOneSize, self.hiddenLayerTwoSize, self.outputLayerSize = inputLayerSize, hiddenLayerOneSize, hiddenLayerTwoSize, outputLayerSize
 
-        # neuron layers
+        # create and store neuron layers
         inputLayer, hiddenLayerOne, hiddenLayerTwo, outputLayer = self.createLayer(inputLayerSize), self.createLayer(hiddenLayerOneSize), self.createLayer(hiddenLayerTwoSize), self.createLayer(outputLayerSize)
-
         self.inputLayer, self.hiddenLayerOne, self.hiddenLayerTwo, self.outputLayer = inputLayer, hiddenLayerOne, hiddenLayerTwo, outputLayer
 
         self.learningConstant = learningConstant
+        self.saveFile = saveFile
 
+        # imports weights from file if option is selected
         if importWeights:
             print("Input filename to load weights from: ")
             filename = input()
             self.loadWeights(filename)
+
+        # otherwise create random starting weights
         else:
             self.w1 = np.random.random_sample((inputLayerSize, hiddenLayerOneSize))
             self.w2 = np.random.random_sample((hiddenLayerOneSize, hiddenLayerTwoSize))
             self.w3 = np.random.random_sample((hiddenLayerTwoSize, outputLayerSize))
 
+        #create metacount global step tracker for plot and lists to store neuron spike times.
         self.metaCount = 0
         self.x_pos, self.y_pos, self.colour = [], [], []
 
-
+    # method to create a layer of neurons
     def createLayer(self, layerSize):
         layer = []
         for i in range(layerSize):
@@ -108,11 +113,12 @@ class NeuralNetwork:
         self.w2 = data['w2']
         self.w3 = data['w3']
 
+    # gets the spike time data from the neural network object for scatter plot
     def getData(self):
         return self.x_pos, self.y_pos, self.colour
 
     # main learning loop, runs with a single set of inputs for a fixed number of cycles, then saves the resulting weights and layers
-    def learningLoop(self, firingRates, limit, colour):
+    def learningLoop(self, firingRates, limit, colour, getTotal):
 
         # import the metacount from the object
         metaCount = self.metaCount
@@ -147,12 +153,17 @@ class NeuralNetwork:
             w2 = w2 + self.updateMatrix(outputVectorOne, outputVectorTwo, w2, hiddenLayerOneSize, hiddenLayerTwoSize, learningConstant)
             w3 = w3 + self.updateMatrix(outputVectorTwo, outputVectorThree, w3, hiddenLayerTwoSize, outputLayerSize, learningConstant)
 
+            # saves the spike time data to the scatter plot lists
             for i in range(outputLayerSize):
                 if outputVectorThree[0][i] == 1:
+                    runningTotal[0][i] += 1
                     self.y_pos.append(i)
                     self.x_pos.append(metaCount)
                     self.colour.append(colour)
 
+            f = open(self.saveFile, "a")
+            f.write(str(outputVectorThree.flatten().tolist()) + "\n")
+            f.close()
 
             # increment
             x += 1
@@ -162,3 +173,7 @@ class NeuralNetwork:
         # runningTotal = runningTotal / limit
         # print(runningTotal)
         self.w1, self.w2, self.w3, self.inputLayer, self.hiddenLayerOne, self.hiddenLayerTwo, self.outputLayer, self.metaCount = w1, w2, w3, inputLayer, hiddenLayerOne, hiddenLayerTwo, outputLayer, metaCount
+
+        # returns the total of spikes for each neuron from the learning loop
+        if getTotal:
+            return runningTotal

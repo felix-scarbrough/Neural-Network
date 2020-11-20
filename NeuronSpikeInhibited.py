@@ -4,7 +4,7 @@ Created on Fri Jun 12 2020
 @author: Felix Scarbrough
 """
 
-
+#
 class InhibitedNeuron:
     threshold = 1
     potential = 0

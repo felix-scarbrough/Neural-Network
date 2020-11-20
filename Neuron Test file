@@ -13,10 +13,10 @@ count = []
 basicNeuronPotential, inhibitedNeuronPotential, advancedNeuronPotential = [], [], []
 
 for i in range(300):
-    if (i % 11 == 0):
-        basicNeuron.spikeIn(0.3)
-        inhibitedNeuron.spikeIn(0.3)
-        advancedNeuron.spikeIn(0.3)
+    if (i % 3 == 0):
+        basicNeuron.spikeIn(0.1)
+        inhibitedNeuron.spikeIn(0.1)
+        advancedNeuron.spikeIn(0.1)
     basicNeuronPotential.append(basicNeuron.getPotential())
     inhibitedNeuronPotential.append(inhibitedNeuron.getPotential())
     advancedNeuronPotential.append(advancedNeuron.getPotential())
@@ -32,6 +32,12 @@ fig, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)
 ax1.plot(count, basicNeuronPotential)
 ax2.plot(count, inhibitedNeuronPotential)
 ax3.plot(count, advancedNeuronPotential)
+ax1.set_title("Basic Neuron", loc='center', y=1)
+ax2.set_title("inhibited Neuron", loc='center', y=1)
+ax3.set_title("Advanced Neuron", loc='center', y=1)
+plt.xlabel('Step')
+plt.ylabel('Potential', y=1.7)
+fig.suptitle("Neuron Behaviour with input period of 3 steps and magnitude of 0.1")
 plt.show()
 
 
