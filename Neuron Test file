@@ -1,3 +1,11 @@
+'''
+Created on 11-Oct-2020
+
+@author: Felix
+'''
+
+# Code to produce potential/time graph of basic, inhibited, and advanced neurons
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -5,29 +13,36 @@ from Neuron import BasicNeuron
 from NeuronSpikeInhibited import InhibitedNeuron
 from NeuronAdvancedDecay import AdvancedNeuron
 
+# create objects for each neuron type
 basicNeuron = BasicNeuron()
 inhibitedNeuron = InhibitedNeuron()
 advancedNeuron = AdvancedNeuron()
 
+# lists to store count and neuron potentials in
 count = []
 basicNeuronPotential, inhibitedNeuronPotential, advancedNeuronPotential = [], [], []
 
+# input and neuron behaviour loop
 for i in range(300):
     if (i % 3 == 0):
         basicNeuron.spikeIn(0.1)
         inhibitedNeuron.spikeIn(0.1)
         advancedNeuron.spikeIn(0.1)
+
+    # save potentials to lists
     basicNeuronPotential.append(basicNeuron.getPotential())
     inhibitedNeuronPotential.append(inhibitedNeuron.getPotential())
     advancedNeuronPotential.append(advancedNeuron.getPotential())
+
+    # update and decay neurons
     basicNeuron.updateNeuron()
     inhibitedNeuron.updateNeuron()
     advancedNeuron.updateNeuron()
+
+    # record current step
     count.append(i)
 
-print(count)
-print(advancedNeuronPotential)
-
+# plot data
 fig, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)
 ax1.plot(count, basicNeuronPotential)
 ax2.plot(count, inhibitedNeuronPotential)

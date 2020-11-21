@@ -4,7 +4,7 @@ Created on Fri Jun 12 2020
 @author: Felix Scarbrough
 """
 
-
+# basic leaky-integrate-and-fire Neuron model
 class BasicNeuron:
     threshold = 1
     potential = 0

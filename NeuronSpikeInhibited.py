@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jun 12 2020
+Created on Fri Jnu 24 2020
 @author: Felix Scarbrough
 """
 
-#
+# leaky-integrate-and-fire Neuron model with inhibited potential for period after spiking
 class InhibitedNeuron:
     threshold = 1
     potential = 0
@@ -21,6 +21,7 @@ class InhibitedNeuron:
         if not self.spiked:
             self.potential += weight
 
+    # check if the neuron has recently spiked.
     def checkSpiked(self):
         if self.spiked and self.spikeTimer >= 0:
             self.spikeTimer -= 1
@@ -28,6 +29,7 @@ class InhibitedNeuron:
             self.spiked = False
             self.spikeTimer = 0
 
+    # checks if the neuron should spike, otherwise decays the potential
     def spikeOrDecay(self):
         if self.potential >= self.threshold:
             self.potential = 0

@@ -137,7 +137,7 @@ class NeuralNetwork:
         w0 = np.identity(inputLayerSize)
         w1, w2, w3 = self.w1, self.w2, self.w3
 
-        # test code
+        # create the running total as an vector of zeros of the same shape as the output layer, to record total spikes
         runningTotal = np.zeros((1, outputLayerSize))
 
         # main loop
@@ -161,6 +161,7 @@ class NeuralNetwork:
                     self.x_pos.append(metaCount)
                     self.colour.append(colour)
 
+            # save log of output vector behaviour to file
             f = open(self.saveFile, "a")
             f.write(str(outputVectorThree.flatten().tolist()) + "\n")
             f.close()
@@ -169,9 +170,7 @@ class NeuralNetwork:
             x += 1
             metaCount += 1
 
-        # continuity between different learning cycles
-        # runningTotal = runningTotal / limit
-        # print(runningTotal)
+        # continuity between different learning cycles)
         self.w1, self.w2, self.w3, self.inputLayer, self.hiddenLayerOne, self.hiddenLayerTwo, self.outputLayer, self.metaCount = w1, w2, w3, inputLayer, hiddenLayerOne, hiddenLayerTwo, outputLayer, metaCount
 
         # returns the total of spikes for each neuron from the learning loop

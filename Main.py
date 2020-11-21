@@ -100,6 +100,7 @@ inputTwoTotalStanDiv = totalStanDiv(inputTwoStanDiv, inputTwoCount)
 inputThreeTotalStanDiv = totalStanDiv(inputThreeStanDiv, inputThreeCount)
 inputFourTotalStanDiv = totalStanDiv(inputFourStanDiv, inputFourCount)
 
+# store the counts, averages, neuron standard deviations, and total standard deviations to file
 f = open("networkResults.txt", "w")
 
 f.write("Results for Basic Neuron" + "\n")

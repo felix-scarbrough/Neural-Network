@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jun 12 2020
+Created on Fri Aug 12 2020
 @author: Felix Scarbrough
 """
 
 import math
 
-# Neuron that when spiked has it's potential polarised before decaying to the ground state and has a short inhibitory period
+# leaky-integrate-and-fire Neuron model that undergoes polarisation post-spike and has inhibited potential
 class AdvancedNeuron:
     threshold = 1
     potential = 0
@@ -23,6 +23,7 @@ class AdvancedNeuron:
         if not self.spiked:
             self.potential += weight
 
+    # check if the neuron has recently spiked.
     def checkSpiked(self):
         if self.spiked and self.spikeTimer >= 0:
             self.spikeTimer -= 1
@@ -30,6 +31,7 @@ class AdvancedNeuron:
             self.spiked = False
             self.spikeTimer = 0
 
+    # checks if the neuron should spike, otherwise decays the potential
     def spikeOrDecay(self):
         if self.potential >= self.threshold:
             self.potential -= 1.2
